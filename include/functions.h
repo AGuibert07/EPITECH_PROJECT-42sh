@@ -1,6 +1,6 @@
 /*
 ** EPITECH PROJECT, 2026
-** MINISHELL 2
+** G2 - Shell Programming - 42sh
 ** File description:
 ** Header file for functions and for includes
 */
