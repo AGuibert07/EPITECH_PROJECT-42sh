@@ -142,9 +142,12 @@ static void execute_parent(pid_t pid, char *path, int *last_return,
 static void execute_redirection_child(char *command_copy, char **arg,
     char *path, char **copy_env)
 {
-    if (apply_redirection(command_copy, (const char **)(copy_env)) == -1)
-        exit(1);
     free_array(arg);
+    if (apply_redirection(command_copy, (const char **)(copy_env)) == -1) {
+        free_array(copy_env);
+        free(command_copy);
+        exit(1);
+    }
     arg = transform_to_string_array(command_copy, " \t");
     free(command_copy);
     if (!arg || !arg[0])
