@@ -9,18 +9,6 @@
 #include "functions.h"
 #include "lang.h"
 
-void my_putchar(char c)
-{
-    write(1, &c, 1);
-}
-
-void my_putstr(char *str)
-{
-    for (int i = 0; str[i] != '\0'; i++) {
-        my_putchar(str[i]);
-    }
-}
-
 void free_array(char **arg)
 {
     if (arg == NULL)
@@ -68,25 +56,39 @@ static char **process_line(char *line, char **copy_env, int *last_return)
     return copy_env;
 }
 
-int main(int argc, char **argv, char **env)
+void print_exit(void)
+{
+    if (isatty(STDIN_FILENO))
+        printf("exit\n");
+}
+
+static void read_input(char ***copy_env, int *last_return)
 {
     char *line = NULL;
-    char **copy_env = get_env_copy(env);
     size_t line_length = 0;
+
+    while (1) {
+        display_custom_prompt(*copy_env);
+        if (getline(&line, &line_length, stdin) == -1) {
+            print_exit();
+            break;
+        }
+        *copy_env = process_line(line, *copy_env, last_return);
+        line = NULL;
+    }
+    free(line);
+}
+
+int main(int argc, char **argv, char **env)
+{
+    char **copy_env = get_env_copy(env);
     int last_return = 0;
 
     init_env_dir((const char **)(copy_env));
     (void)argc;
     (void)argv;
     signal(SIGINT, SIG_IGN);
-    while (1) {
-        display_custom_prompt(copy_env);
-        if (getline(&line, &line_length, stdin) == -1)
-            break;
-        copy_env = process_line(line, copy_env, &last_return);
-        line = NULL;
-    }
-    free(line);
+    read_input(&copy_env, &last_return);
     free_array(copy_env);
     return last_return;
 }

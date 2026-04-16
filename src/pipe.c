@@ -70,6 +70,7 @@ static void exec_pipe_child(char *command, int in_fd,
     if (apply_redirection(command_copy, (const char **)(copy_env)) == -1)
         exit(1);
     arg = transform_to_string_array(command_copy, " \t");
+    free(command_copy);
     path = get_command_path(arg[0], copy_env);
     if (path == NULL) {
         print_error((const char *)(arg[0]), CMD_NOT_FOUND,
@@ -144,15 +145,13 @@ void handle_pipe(char *line, char **copy_env, int *last_return)
     pid_t last_pid = 0;
     int nb_commands = 0;
 
-    if (!commands) {
-        free(copy_line);
+    free(copy_line);
+    if (!commands)
         return;
-    }
     while (commands[nb_commands])
         nb_commands++;
     for (int i = 0; commands[i] != NULL; i++)
         last_pid = exec_fork_pipe(commands, i, &prev_fd, copy_env);
     wait_for_all(last_pid, last_return, nb_commands, (const char **)(copy_env));
     free_array(commands);
-    free(copy_line);
 }

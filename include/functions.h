@@ -41,9 +41,9 @@ void detele_env_var(char **copy_env, int index);
 char **parse_command(char *command, char **copy_env,
     int *last_return, char **commands_array);
 // main.c
-void my_putstr(char *str);
 char **transform_to_string_array(char *str, char *separator);
 void free_array(char **arg);
+void print_exit(void);
 // pipe.c
 void handle_pipe(char *line, char **copy_env, int *last_return);
 int pipe_syntax_error(char *line);

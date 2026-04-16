@@ -84,14 +84,14 @@ void handle_signal_error(int status, int *last_return, const char **env)
     char *message = strsignal(sig);
 
     if (sig == SIGINT) {
-        write(1, "\n", 1);
+        printf("\n");
         *last_return = 1;
         return;
     }
     if (WCOREDUMP(status) && sig == SIGSEGV)
-        print_error(NULL, SEG_FAULT, env);
-    else if (sig == SIGSEGV)
         print_error(NULL, SEG_FAULT_CD, env);
+    else if (sig == SIGSEGV)
+        print_error(NULL, SEG_FAULT, env);
     if (sig != SIGSEGV && message) {
         fprintf(stderr, "%s", message);
         if (WCOREDUMP(status))
@@ -105,10 +105,12 @@ void execute_child(char **arg, char *path, char **copy_env)
 {
     signal(SIGINT, SIG_DFL);
     if (execve(path, arg, copy_env) == -1) {
+        free(path);
         if (errno == ENOEXEC) {
             print_error((const char *)(arg[0]), NOT_EXEC,
                 (const char **)(copy_env));
-            free(path);
+            free_array(copy_env);
+            free_array(arg);
             exit(1);
         }
         if (errno == EACCES)
@@ -117,7 +119,8 @@ void execute_child(char **arg, char *path, char **copy_env)
         else
             print_error((const char *)(arg[0]), CMD_NOT_FOUND,
                 (const char **)(copy_env));
-        free(path);
+        free_array(copy_env);
+        free_array(arg);
         exit(1);
     }
 }
@@ -143,6 +146,7 @@ static void execute_redirection_child(char *command_copy, char **arg,
         exit(1);
     free_array(arg);
     arg = transform_to_string_array(command_copy, " \t");
+    free(command_copy);
     if (!arg || !arg[0])
         exit(0);
     execute_child(arg, path, copy_env);
@@ -157,6 +161,7 @@ void execute_command(char *command, char **copy_env, int *last_return)
     char *path = get_command_path(arg[0], copy_env);
     pid_t pid = 0;
 
+    free(tmp_copy);
     if (path == NULL) {
         print_error((const char *)(arg[0]), CMD_NOT_FOUND,
             (const char **)(copy_env));
@@ -168,7 +173,6 @@ void execute_command(char *command, char **copy_env, int *last_return)
         else
             execute_parent(pid, path, last_return, (const char **)(copy_env));
     }
-    free(tmp_copy);
     free_array(arg);
     free(command_copy);
 }

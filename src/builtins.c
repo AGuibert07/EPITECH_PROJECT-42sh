@@ -10,9 +10,8 @@
 
 void print_env(char **copy_env, int *last_return)
 {
-    for (int i = 0; copy_env[i] != NULL; i++) {
-        my_putstr(copy_env[i]);
-        write(1, "\n", 1);
+    for (size_t i = 0; copy_env[i] != NULL; i++) {
+        printf("%s\n", copy_env[i]);
     }
     *last_return = 0;
 }
@@ -21,6 +20,7 @@ void exit_program(char **arg, char **copy_env, int last_return)
 {
     free_array(arg);
     free_array(copy_env);
+    print_exit();
     exit(last_return);
 }
 
