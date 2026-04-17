@@ -5,6 +5,9 @@
 ** Redirections handling
 */
 
+#include <stdbool.h>
+#include <unistd.h>
+#include <stdio.h>
 #include <string.h>
 #include "functions.h"
 #include "lang.h"
@@ -82,20 +85,18 @@ static char *get_filename(char *str)
 
 static int get_output_fd(char *ptr, char **filename)
 {
-    int fd = 0;
+    int mode = O_WRONLY | O_CREAT;
+    int jmp = 1;
 
     if (*(ptr + 1) == '>') {
-        *filename = get_filename(ptr + 2);
-        if (!*filename)
-            return -1;
-        fd = open(*filename, O_WRONLY | O_CREAT | O_APPEND, 0644);
-    } else {
-        *filename = get_filename(ptr + 1);
-        if (!*filename)
-            return -1;
-        fd = open(*filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-    }
-    return fd;
+        jmp = 2;
+        mode = mode | O_APPEND;
+    } else
+        mode = mode | O_TRUNC;
+    *filename = get_filename(ptr + jmp);
+    if (!*filename)
+        return -1;
+    return open(*filename, mode, 0644);
 }
 
 static int output_redirection(char *command)
@@ -119,13 +120,42 @@ static int output_redirection(char *command)
     return 0;
 }
 
+static int double_stdin_redirection(const char *stop_word)
+{
+    int pipe_fd[2] = {0, 0};
+    bool loop = true;
+    char *buffer = NULL;
+    size_t size = 0;
+
+    if (pipe(pipe_fd) != 0)
+        return -1;
+    while (loop) {
+        if (getline(&buffer, &size, stdin) < 0) {
+            close(pipe_fd[1]);
+            close(pipe_fd[0]);
+            free(buffer);
+            return -1;
+        }
+        dprintf(pipe_fd[1], "%s", buffer);
+        loop = strcmp((const char *)(cut_ending_char(buffer, '\n')), stop_word);
+    }
+    free(buffer);
+    close(pipe_fd[1]);
+    return pipe_fd[0];
+}
+
 static int get_input_fd(char *ptr, char **filename)
 {
     int fd = 0;
+    bool double_redirect = (*(ptr + 1) == '<');
 
+    if (double_redirect)
+        ptr += 1;
     *filename = get_filename(ptr + 1);
     if (!*filename)
         return -1;
+    if (double_redirect)
+        return double_stdin_redirection((const char *)(*filename));
     fd = open(*filename, O_RDONLY, 0644);
     return fd;
 }
@@ -136,7 +166,7 @@ static int input_redirection(char *command)
     char *filename = NULL;
     int fd = 0;
 
-    if (!ptr || *(ptr + 1) == '<')
+    if (!ptr)
         return 0;
     fd = get_input_fd(ptr, &filename);
     *ptr = '\0';

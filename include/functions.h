@@ -51,5 +51,7 @@ int pipe_syntax_error(char *line);
 int apply_redirection(char *command, const char **env);
 // bonus.c
 void display_custom_prompt(char **copy_env);
+// tools.c
+char *cut_ending_char(char *buffer, char c);
 
 #endif

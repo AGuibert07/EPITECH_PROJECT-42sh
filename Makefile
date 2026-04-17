@@ -30,6 +30,7 @@ SRC			=	bonus/print_error/str_tools_functions.c				\
 				bonus/print_error/get_env_dir.c						\
 				bonus/print_error/print_error.c						\
 				bonus/bonus.c										\
+				src/tools.c											\
 				src/builtins.c										\
 				src/cd.c											\
 				src/env_utils.c										\
