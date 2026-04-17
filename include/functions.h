@@ -16,8 +16,10 @@
     #include <signal.h>
     #include <sys/stat.h>
     #include <errno.h>
-    #define SEMICLON ";"
     #include <fcntl.h>
+
+    #define SEMICOLON ";"
+    #define GLOBBINGS_CHARS "*?[]"
 
 // builtins.c
 void print_env(char **env, int *last_return);
