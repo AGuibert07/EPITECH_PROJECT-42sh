@@ -68,13 +68,13 @@ static char **check_inhibitors(char **arg, char *separator, size_t count_nb)
     if (!new_arg)
         exit(84);
     for (size_t x = 0; arg[x] != NULL; x++) {
-        if (arg[x][strlen(arg[x]) - 1] == '\\') {
+        if (arg[x][strlen(arg[x]) - 1] == '\\')
             new_arg[current] = strdup(check_backslash(arg, &x, separator));
-            current++;
-        } else {
+        else
             new_arg[current] = strdup(arg[x]);
-            current++;
-        }
+        if (!new_arg[current])
+            exit(84);
+        current++;
     }
     new_arg[current] = NULL;
     free_array(arg);
