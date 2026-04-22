@@ -24,8 +24,13 @@
     #define GLOBBINGS_CHARS "*?[]"
     #define GLOBBINGS_TMP_FILE ".globbings.tmp"
 
+typedef struct builtins_s {
+    char *name;
+    char **(*ptr)(char **, char **, int *);
+} builtins_t;
+
 // builtins.c
-void print_env(char **env, int *last_return);
+char **print_env(char **arg, char **env, int *last_return);
 void exit_program(char **commands_array, char **copy_env, int last_return,
     jobs_t **jobs);
 char **execute_setenv(char **arg, char **copy_env, int *last_return);
@@ -60,5 +65,14 @@ int apply_redirection(char *command, const char **env);
 void display_custom_prompt(char **copy_env);
 // tools.c
 char *cut_ending_char(char *buffer, char c);
+bool str_isnum(const char *str, int *val);
+
+static const builtins_t builtins_functions[] = {
+    {"cd", execute_cd},
+    {"env", print_env},
+    {"setenv", execute_setenv},
+    {"unsetenv", execute_unsetenv},
+    {NULL, NULL}
+};
 
 #endif

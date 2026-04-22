@@ -35,7 +35,9 @@ SRC			=	bonus/print_error/str_tools_functions.c				\
 				src/cd.c											\
 				src/env_utils.c										\
 				src/exec.c											\
+				src/get_jobs.c										\
 				src/jobs_control.c									\
+				src/manage_jobs.c									\
 				src/parsing.c										\
 				src/pipe.c											\
 				src/redirections.c

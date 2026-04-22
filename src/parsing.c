@@ -121,27 +121,25 @@ char **transform_to_string_array(char *str, char *separator)
 }
 
 static char **execute_builtin(char **arg, char **copy_env, int *last_return,
-    jobs_t *jobs)
+    jobs_t **jobs)
 {
     char **result_env = NULL;
 
-    if (strcmp(arg[0], "jobs") == 0) {
-        jobs_command(arg, jobs);
-        result_env = copy_env;
+    for (size_t i = 0; jobs_builtins[i].name; i++)
+        if (!strcmp(jobs_builtins[i].name, arg[0])) {
+            jobs_builtins[i].ptr(arg, (const char **)(copy_env), jobs,
+                last_return);
+            return copy_env;
+        }
+    if (arg[0][0] == '%') {
+        job_control_synonym(arg, last_return, (const char **)(copy_env), jobs);
+        return copy_env;
     }
-    if (strcmp((const char *)(arg[0]), "cd") == 0)
-        result_env = execute_cd(arg, copy_env, last_return);
-    if (strcmp((const char *)(arg[0]), "setenv") == 0 && arg[1] != NULL)
-        result_env = execute_setenv(arg, copy_env, last_return);
-    if (strcmp((const char *)(arg[0]), "unsetenv") == 0)
-        result_env = execute_unsetenv(arg, copy_env, last_return);
-    if (strcmp((const char *)(arg[0]), "env") == 0 ||
-        (strcmp((const char *)(arg[0]), "setenv") == 0 && arg[1] == NULL)) {
-        print_env(copy_env, last_return);
-        result_env = copy_env;
-    }
-    if (result_env)
-        return result_env;
+    for (size_t i = 0; builtins_functions[i].name; i++)
+        if (!strcmp(arg[0], builtins_functions[i].name)) {
+            result_env = builtins_functions[i].ptr(arg, copy_env, last_return);
+            return result_env;
+        }
     return NULL;
 }
 
@@ -152,7 +150,7 @@ static char **exec_all(char *command, char ***array,
     char **arg = array[1];
     char **result_env = NULL;
 
-    result_env = execute_builtin(arg, copy_env, last_return, *jobs);
+    result_env = execute_builtin(arg, copy_env, last_return, jobs);
     free_array(arg);
     if (result_env)
         return result_env;

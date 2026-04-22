@@ -1,6 +1,6 @@
 /*
 ** EPITECH PROJECT, 2026
-** jobs_control
+** G2 - Shell Programming - 42sh
 ** File description:
 ** jobs_control
 */
@@ -22,11 +22,15 @@ static const char *get_state(states_t state)
     }
 }
 
-int jobs_command(char **args, jobs_t *jobs)
+void jobs_command(char **args, const char **env, jobs_t **jobs_ptr,
+    int *last_return)
 {
     char symbol = ' ';
+    jobs_t *jobs = *jobs_ptr;
 
     (void)args;
+    (void)env;
+    *last_return = 0;
     for (size_t i = 0; jobs[i].state != NULL_STATE
         && jobs[i].state != EXITED; i++) {
         symbol = ' ';
@@ -37,7 +41,6 @@ int jobs_command(char **args, jobs_t *jobs)
         printf("[%zu] %c %s\t\t%s\n", jobs[i].pos, symbol,
             get_state(jobs[i].state), jobs[i].name);
     }
-    return 0;
 }
 
 void add_elements(jobs_t **jobs, const char *name, pid_t pid, states_t state)

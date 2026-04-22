@@ -8,12 +8,14 @@
 #include "functions.h"
 #include "lang.h"
 
-void print_env(char **copy_env, int *last_return)
+char **print_env(char **arg, char **copy_env, int *last_return)
 {
+    (void)arg;
     for (size_t i = 0; copy_env[i] != NULL; i++) {
         printf("%s\n", copy_env[i]);
     }
     *last_return = 0;
+    return copy_env;
 }
 
 void exit_program(char **commands_array, char **copy_env, int last_return,
@@ -53,6 +55,8 @@ char **execute_setenv(char **arg, char **copy_env, int *last_return)
     char *new_var = NULL;
     int index = 0;
 
+    if (!arg[1])
+        return print_env(arg, copy_env, last_return);
     if (fail_setenv(arg, last_return, (const char **)(copy_env)) == -1)
         return copy_env;
     *last_return = 0;

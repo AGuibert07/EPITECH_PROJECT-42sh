@@ -6,6 +6,8 @@
 */
 
 #include <string.h>
+#include <stdbool.h>
+#include <stdlib.h>
 
 char *cut_ending_char(char *buffer, char c)
 {
@@ -17,4 +19,16 @@ char *cut_ending_char(char *buffer, char c)
     if (buffer[l - 1] == c)
         buffer[l - 1] = '\0';
     return buffer;
+}
+
+bool str_isnum(const char *str, int *val)
+{
+    char *tmp = NULL;
+    int nbr = strtol(str, &tmp, 10);
+
+    if (val)
+        *val = nbr;
+    if (!tmp || tmp[0])
+        return false;
+    return true;
 }
