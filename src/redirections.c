@@ -130,9 +130,9 @@ static int double_stdin_redirection(const char *stop_word)
     if (pipe(pipe_fd) != 0)
         return -1;
     while (loop) {
-        write(1, "> ", 2);
+        write(STDOUT_FILENO, "> ", 2);
         loop = false;
-        if (getline(&buffer, &size, stdin) < 0) {
+        if (getline(&buffer, &size, stdin) > 0) {
             dprintf(pipe_fd[1], "%s", buffer);
             loop = (strcmp((const char *)(cut_ending_char(buffer, '\n')),
                     stop_word) != 0);
