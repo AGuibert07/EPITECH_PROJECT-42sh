@@ -66,6 +66,9 @@ void display_custom_prompt(char **copy_env);
 // tools.c
 char *cut_ending_char(char *buffer, char c);
 bool str_isnum(const char *str, int *val);
+// backticks.c
+char *handle_backticks(char *line, int *last_return, jobs_t *jobs,
+    char **copy_env);
 
 static const builtins_t builtins_functions[] = {
     {"cd", execute_cd},
