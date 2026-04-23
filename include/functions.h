@@ -56,6 +56,8 @@ char **parse_command(char *command, char ***array, int *last_return,
 char **transform_to_string_array(char *str, char *separator);
 void free_array(char **arg);
 void print_exit(void);
+char **process_line(char *line, char **copy_env, int *last_return,
+    jobs_t **jobs);
 // pipe.c
 void handle_pipe(char *line, char **copy_env, int *last_return);
 int pipe_syntax_error(char *line);
@@ -66,6 +68,11 @@ void display_custom_prompt(char **copy_env);
 // tools.c
 char *cut_ending_char(char *buffer, char c);
 bool str_isnum(const char *str, int *val);
+char **split_semicolon(char *line);
+// subshell.c
+void update_depth(char character, int *depth);
+int check_subshell(char *command, char **copy_env,
+    int *last_return, jobs_t **jobs);
 // backticks.c
 char *handle_backticks(char *line, int *last_return, jobs_t *jobs,
     char **copy_env);
