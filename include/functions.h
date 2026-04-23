@@ -73,6 +73,9 @@ char **split_semicolon(char *line);
 void update_depth(char character, int *depth);
 int check_subshell(char *command, char **copy_env,
     int *last_return, jobs_t **jobs);
+// backticks.c
+char *handle_backticks(char *line, int *last_return, jobs_t *jobs,
+    char **copy_env);
 
 static const builtins_t builtins_functions[] = {
     {"cd", execute_cd},
