@@ -5,7 +5,10 @@
 ** Backticks handling
 */
 
+#include <string.h>
 #include "functions.h"
+#include "lang.h"
+#include "jobs.h"
 
 static void finish_res(int len, char *res)
 {
@@ -38,6 +41,37 @@ static char *read_output(int fd)
     return res;
 }
 
+static void cmd_exec(char **args, char **env)
+{
+    char *path = get_command_path(args[0], env);
+
+    if (!path) {
+        print_error(args[0], CMD_NOT_FOUND, (const char **)env);
+        exit(1);
+    }
+    if (execve(path, args, env) == -1) {
+        perror(args[0]);
+        exit(1);
+    }
+}
+
+static void process_command(char *cmd, char **env, int *last_return)
+{
+    char *cmd_copy = strdup(cmd);
+    char **args = transform_to_string_array(cmd_copy, " \t");
+
+    if (!args || !args[0]) {
+        free(cmd_copy);
+        exit(0);
+    }
+    for (size_t i = 0; builtins_functions[i].name; i++)
+        if (!strcmp(args[0], builtins_functions[i].name)) {
+            builtins_functions[i].ptr(args, env, last_return);
+            exit(*last_return);
+        }
+    cmd_exec(args, env);
+}
+
 static void exec_child(int pipe_fds[2], char *cmd, int *last_return,
     char **env)
 {
@@ -45,7 +79,7 @@ static void exec_child(int pipe_fds[2], char *cmd, int *last_return,
     dup2(pipe_fds[1], STDOUT_FILENO);
     dup2(pipe_fds[1], STDERR_FILENO);
     close(pipe_fds[1]);
-    parse_command(cmd, (char **[]) {env, NULL}, last_return, NULL);
+    process_command(cmd, env, last_return);
 }
 
 static char *exec_cmd(char *cmd, int *last_return, char **env)
@@ -58,10 +92,8 @@ static char *exec_cmd(char *cmd, int *last_return, char **env)
     if (pipe(pipe_fds) == -1)
         return strdup("");
     pid = fork();
-    if (pid == 0) {
+    if (pid == 0)
         exec_child(pipe_fds, cmd, last_return, env);
-        exit(*last_return);
-    }
     close(pipe_fds[1]);
     output = read_output(pipe_fds[0]);
     close(pipe_fds[0]);
