@@ -2,7 +2,7 @@
 ** EPITECH PROJECT, 2026
 ** G2 - Shell Programming - 42sh
 ** File description:
-** 42sh project
+** Minishell 2 project
 */
 
 #include <string.h>
@@ -46,7 +46,8 @@ char **process_line(char *line, char **copy_env, int *last_return,
 
     if (len > 0 && line[len - 1] == '\n')
         line[len - 1] = '\0';
-    commands = split_semicolon(line);
+    line = handle_backticks(line, last_return, jobs, copy_env);
+    commands = transform_to_string_array(line, ";");
     if (line)
         free(line);
     if (!commands)
