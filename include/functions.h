@@ -75,7 +75,7 @@ void display_custom_prompt(char **copy_env);
 // tools.c
 char *cut_ending_char(char *buffer, char c);
 bool str_isnum(const char *str, int *val);
-char **split_semicolon(char *line);
+// // char **split_semicolon(char *line);
 // subshell.c
 void update_depth(char character, int *depth);
 int check_subshell(char *command, char **copy_env,

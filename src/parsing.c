@@ -123,18 +123,27 @@ char **transform_to_string_array(char *str, char *separator)
 void my_replace_in_str(char *str, char c_init, char c_new)
 {
     size_t size = 0;
-    size_t j = 0;
 
     if (str == NULL)
         return;
-    size = strlen(str);
+    size = strlen((const char *)(str));
     for (size_t i = 0; i < size; ++i) {
-        if (str[i] == '\\') {
+        if (str[i] == c_init)
+            str[i] = c_new;
+        if (str[i] == '\\')
             i += 1;
+    }
+}
+
+void rm_backslash(char *str)
+{
+    size_t j = 0;
+
+    for (size_t i = 0; str[i] != '\0'; ++i) {
+        if (str[i] != '\\') {
             str[j] = str[i];
-        } else
-            str[j] = ((str[i] == c_init) ? (c_new) : (str[i]));
-        j += 1;
+            j += 1;
+        }
     }
     str[j] = '\0';
 }
@@ -172,6 +181,7 @@ char **transform_to_string_array(const char *str, const char *separator)
         return NULL;
     for (size_t i = 0; separator[i] != '\0'; ++i)
         my_replace_in_str(tmp, separator[i], '\n');
+    rm_backslash(tmp);
     arr = my_split_str((const char *)(tmp), '\n');
     free(tmp);
     if (arr == NULL)
