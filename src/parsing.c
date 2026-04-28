@@ -132,10 +132,8 @@ void my_replace_in_str(char *str, char c_init, char c_new)
         if (str[i] == '\\') {
             i += 1;
             str[j] = str[i];
-        } else if (str[i] == c_init)
-            str[j] = c_new;
-        else
-            str[j] = str[i];
+        } else
+            str[j] = ((str[i] == c_init) ? (c_new) : (str[i]));
         j += 1;
     }
     str[j] = '\0';
