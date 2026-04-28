@@ -30,6 +30,7 @@ SRC			=	bonus/print_error/str_tools_functions.c				\
 				bonus/print_error/get_env_dir.c						\
 				bonus/print_error/print_error.c						\
 				bonus/bonus.c										\
+				src/free_tools.c									\
 				src/tools.c											\
 				src/builtins.c										\
 				src/cd.c											\
@@ -42,7 +43,8 @@ SRC			=	bonus/print_error/str_tools_functions.c				\
 				src/pipe.c											\
 				src/redirections.c									\
 				src/subshell.c										\
-				src/backticks.c
+				src/backticks.c										\
+				src/globbings/globbings.c
 
 MAIN_SRC	=	src/main.c # main file
 

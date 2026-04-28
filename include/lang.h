@@ -111,6 +111,7 @@ char *my_str_n_concat(unsigned int n, ...);
 int my_nbr_occurences_in_str(char c, const char *str);
 char *my_substring(const char *str, int start_pos, unsigned int n);
 char **my_split_str(const char *str, char sep);
+void my_replace_in_str(char *str, char c, char c_new);
 char **get_file_content(char *filename);
 char *my_str_join(const char *separator, const char **arr);
 int my_word_array_len(const char **arr);

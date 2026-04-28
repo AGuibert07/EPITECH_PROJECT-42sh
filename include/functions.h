@@ -23,6 +23,7 @@
     #define SEMICOLON ";"
     #define GLOBBINGS_CHARS "*?[]"
     #define GLOBBINGS_TMP_FILE ".globbings.tmp"
+    #define GLOB_FLAGS (GLOB_NOCHECK)
 
 typedef struct builtins_s {
     char *name;
@@ -76,6 +77,13 @@ int check_subshell(char *command, char **copy_env,
 // backticks.c
 char *handle_backticks(char *line, int *last_return, jobs_t **jobs,
     char **env);
+// globbings.c
+int get_paths_with_globbings(char **str, const char **env);
+char *get_path_with_home_dir(const char *str_init, const char **env);
+// free_tools.c
+void nfree(size_t n, ...);
+void free_array(char **arg);
+void nfree_array(size_t n, ...);
 
 static const builtins_t builtins_functions[] = {
     {"cd", execute_cd},

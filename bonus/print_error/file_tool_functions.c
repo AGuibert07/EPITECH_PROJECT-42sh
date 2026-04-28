@@ -17,6 +17,8 @@ int my_word_array_len(const char **arr)
 {
     int l = 0;
 
+    if (arr == NULL)
+        return -1;
     for (int i = 0; arr[i] != NULL; ++i)
         l += 1;
     return l;
