@@ -91,6 +91,10 @@ char **apply_globbings_on_args(char **args, const char **env);
 void nfree(size_t n, ...);
 void free_array(char **arg);
 void nfree_array(size_t n, ...);
+//inhibitors.c
+char **check_quotes(char **new_arg, const char *separator);
+//quote_inhibitor.c
+char **assemble_quote(char **new_arg, const char *sep);
 
 static const builtins_t builtins_functions[] = {
     {"cd", execute_cd},

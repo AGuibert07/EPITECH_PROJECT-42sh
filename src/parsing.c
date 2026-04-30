@@ -148,7 +148,7 @@ void rm_backslash(char *str)
     str[j] = '\0';
 }
 
-static char **remove_empty_strings(char **arr_init)
+static char **remove_empty_strings(char **arr_init, const char *separator)
 {
     char **arr_new = calloc(my_word_array_len((const char **)(arr_init)) + 1,
         sizeof(char *));
@@ -166,6 +166,7 @@ static char **remove_empty_strings(char **arr_init)
             free(arr_init[i]);
     }
     free(arr_init);
+    arr_new = check_quotes(arr_new, separator);
     return arr_new;
 }
 
@@ -186,7 +187,7 @@ char **transform_to_string_array(const char *str, const char *separator)
     free(tmp);
     if (arr == NULL)
         return NULL;
-    return remove_empty_strings(arr);
+    return remove_empty_strings(arr, separator);
 }
 
 static char **execute_builtin(char **arg, char **copy_env, int *last_return,
