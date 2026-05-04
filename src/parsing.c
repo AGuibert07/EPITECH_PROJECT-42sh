@@ -223,6 +223,7 @@ static char **exec_all(char *command, char ***array,
     char **result_env = NULL;
 
     result_env = execute_builtin(arg, copy_env, last_return, jobs);
+    free_array(arg);
     if (result_env)
         return result_env;
     execute_command(command, (const char **)(copy_env), last_return, jobs);
