@@ -24,6 +24,9 @@
     #define GLOBBINGS_CHARS "*?[]"
     #define GLOBBINGS_TMP_FILE ".globbings.tmp"
     #define GLOB_FLAGS (GLOB_NOCHECK)
+    #define BACKSLASH '\\'
+    #define SIMPLE_QUOTE '\''
+    #define DOUBLE_QUOTE '\"'
 
 typedef int signal_t;
 
@@ -92,9 +95,12 @@ void nfree(size_t n, ...);
 void free_array(char **arg);
 void nfree_array(size_t n, ...);
 //inhibitors.c
-char **check_quotes(char **new_arg, const char *separator);
+char **manage_quotes(char **new_arg, const char *separator);
 //quote_inhibitor.c
-char **assemble_quote(const char **new_arg, const char *sep);
+bool char_cmp_quote(bool containing_quote, char character, char quote);
+char **create_part(char **tmp, const char **new_arg, size_t **indexes,
+    const char **utils);
+void remove_backslash(const char **new_arg, char **tmp, char quote);
 
 static const builtins_t builtins_functions[] = {
     {"cd", execute_cd},

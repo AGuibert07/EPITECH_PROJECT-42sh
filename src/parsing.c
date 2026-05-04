@@ -166,7 +166,7 @@ static char **remove_empty_strings(char **arr_init, const char *separator)
             free(arr_init[i]);
     }
     free(arr_init);
-    arr_new = check_quotes(arr_new, separator);
+    arr_new = manage_quotes(arr_new, separator);
     return arr_new;
 }
 
