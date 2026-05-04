@@ -190,7 +190,7 @@ char **transform_to_string_array(const char *str, const char *separator)
     return remove_empty_strings(arr, separator);
 }
 
-static char **execute_builtin(char **arg, char **copy_env, int *last_return,
+char **execute_builtin(char **arg, char **copy_env, int *last_return,
     jobs_t **jobs)
 {
     char **result_env = NULL;

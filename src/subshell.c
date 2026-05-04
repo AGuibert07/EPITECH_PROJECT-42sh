@@ -8,6 +8,14 @@
 #include "functions.h"
 #include "lang.h"
 
+void update_depth(char character, int *depth)
+{
+    if (character == '(')
+        (*depth)++;
+    if (character == ')')
+        (*depth)--;
+}
+
 static char *get_subshell_content(const char *command)
 {
     int i = 0;
@@ -20,10 +28,7 @@ static char *get_subshell_content(const char *command)
         return NULL;
     start_pos = i + 1;
     for (; command[i] != '\0'; i++) {
-        if (command[i] == '(')
-            depth++;
-        if (command[i] == ')')
-            depth--;
+        update_depth(command[i], &depth);
         if (depth == 0)
             return my_substring(command, start_pos, i - start_pos);
     }
@@ -58,7 +63,7 @@ static char **exec_subshell(char *content, char **copy_env,
     pid_t pid = fork();
 
     if (pid == -1) {
-        perror("fork");
+        perror("fork error exec_subshell");
         return copy_env;
     }
     if (pid == 0) {
@@ -67,14 +72,6 @@ static char **exec_subshell(char *content, char **copy_env,
         exec_parent_subshell(pid, last_return, copy_env);
     }
     return copy_env;
-}
-
-void update_depth(char character, int *depth)
-{
-    if (character == '(')
-        (*depth)++;
-    if (character == ')')
-        (*depth)--;
 }
 
 static int is_empty(char *str)
