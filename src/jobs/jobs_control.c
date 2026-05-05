@@ -40,8 +40,10 @@ static void print_jobs(jobs_t *jobs, size_t pos)
         get_state(jobs[pos].state), jobs[pos].name);
 }
 
-static void check_background_status(jobs_t *tmp, size_t pos, int status)
+static void check_background_status(jobs_t **jobs, size_t pos, int status)
 {
+    jobs_t *tmp = *jobs;
+
     if (WIFSTOPPED(status)) {
         tmp[pos].state = STOPPED;
         if (WSTOPSIG(status) == SIGTTIN)
@@ -52,7 +54,7 @@ static void check_background_status(jobs_t *tmp, size_t pos, int status)
         tmp[pos].state = DONE;
     print_jobs(tmp, pos);
     if (tmp[pos].state == DONE)
-        remove_element(&tmp, pos);
+        remove_element(jobs, pos);
 }
 
 void check_background_jobs(jobs_t **jobs)
@@ -69,7 +71,7 @@ void check_background_jobs(jobs_t **jobs)
     while (pid > 0) {
         i = get_jobs_by_pid(tmp, pid);
         if (tmp[i].state != EXITED && tmp[i].state != NULL_STATE)
-            check_background_status(tmp, i, status);
+            check_background_status(jobs, i, status);
         pid = waitpid(-1, &status, WNOHANG | WUNTRACED | WCONTINUED);
     }
 }

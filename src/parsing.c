@@ -224,19 +224,17 @@ static char **exec_all(char *command, char ***array,
     char **result_env = NULL;
 
     result_env = execute_builtin(arg, copy_env, last_return, jobs);
-    if (result_env) {
-        free_array(arg);
-        return result_env;
-    }
-    execute_command(command, (const char **)(copy_env), last_return, jobs);
     free_array(arg);
+    if (result_env)
+        return result_env;
+    execute_command(command, (const char **)(copy_env), last_return, jobs);
     return copy_env;
 }
 
 static void update_job_state(jobs_t **jobs)
 {
     jobs_t *tmp = *jobs;
-    int len = jobs_struct_len(tmp);
+    size_t len = jobs_struct_len(tmp);
 
     if (tmp[len].state == EXITED)
         tmp[len].state = NULL_STATE;

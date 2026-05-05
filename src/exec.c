@@ -134,8 +134,11 @@ static void execute_parent(pid_t pid, int *last_return,
     int status = 0;
     const char **env = (const char **) array[0];
     const char **command = (const char **) array[1];
+    bool background = check_background_start(*command);
 
     setpgid(pid, pid);
+    if (background)
+        return manage_background_jobs(pid, command, jobs);
     tcsetpgrp(STDIN_FILENO, pid);
     waitpid(pid, &status, WUNTRACED);
     tcsetpgrp(STDIN_FILENO, getpgrp());
@@ -154,6 +157,7 @@ static void execute_redirection_child(const char *command, char **arg,
     char *path, char **copy_env)
 {
     char *command_copy = strdup((const char *)(command));
+    bool background = check_background_start(command);
 
     free_array(arg);
     if (apply_redirection(command_copy, (const char **)(copy_env)) == -1) {
@@ -163,6 +167,8 @@ static void execute_redirection_child(const char *command, char **arg,
     }
     arg = transform_to_string_array(command_copy, " \t");
     arg = apply_globbings_on_args(arg, (const char **)(copy_env));
+    if (background)
+        remove_start_bg(arg);
     free(command_copy);
     if (!arg || !arg[0])
         exit(0);

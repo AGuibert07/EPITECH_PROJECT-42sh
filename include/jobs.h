@@ -8,8 +8,10 @@
 #ifndef JOBS_H_
     #define JOBS_H_
 
+    #include <stdbool.h>
     #include <stddef.h>
     #include <sys/types.h>
+    #define START_BG "&"
     #define JOBS_CMD "jobs"
     #define JOBS_BG_CMD "bg"
     #define JOBS_FG_CMD "fg"
@@ -51,6 +53,9 @@ void job_control_synonym(char **args, int *last_return, const char **env,
 jobs_t *get_jobs(const char *arg, jobs_t *jobs, char **args, size_t *pos);
 size_t get_jobs_by_pid(jobs_t *jobs, pid_t pid);
 void check_background_jobs(jobs_t **jobs);
+bool check_background_start(const char *command);
+void manage_background_jobs(pid_t pid, const char **command, jobs_t **jobs);
+void remove_start_bg(char **arg);
 
 static const jobs_builtins_t jobs_builtins[] = {
     {JOBS_FG_CMD, fg_command},
