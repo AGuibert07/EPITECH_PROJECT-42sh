@@ -49,6 +49,7 @@ SRC			=	bonus/print_error/str_tools_functions.c				\
 				src/globbings/globbings.c							\
 				src/inhibitors.c									\
 				src/quote_inhibitor.c								\
+				src/line.c
 				src/alias/alias_utils.c								\
 				src/alias/alias_builtins.c
 
