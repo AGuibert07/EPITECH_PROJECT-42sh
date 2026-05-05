@@ -10,7 +10,7 @@ CC	:=	epiclang
 CPPFLAGS	+=	-iquote ./include/
 CFLAGS		+=	-Wall -Wextra
 # LDFLAGS		+=	-L lib
-# LDLIBS		+=	-l my
+LDLIBS		+=	-lncurses
 
 
 TESTS_FOLDER	=	tests/
@@ -49,11 +49,11 @@ SRC			=	bonus/print_error/str_tools_functions.c				\
 				src/globbings/globbings.c							\
 				src/inhibitors.c									\
 				src/quote_inhibitor.c								\
-				src/line.c
 				src/alias/alias_utils.c								\
 				src/alias/alias_builtins.c							\
 				src/line_edition/multiline.c						\
-				src/line_edition/binding.c
+				src/line_edition/binding.c							\
+				src/line_edition/actions.c
 
 MAIN_SRC	=	src/main.c # main file
 

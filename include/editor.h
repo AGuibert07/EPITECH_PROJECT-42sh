@@ -25,14 +25,7 @@
 
     #define MAX_BINDINGS 256
 
-typedef struct {
-    char *buffer;
-    int len;
-    int cap;
-    int cursor;
-    int prompt_len;
-    int prompt_row;
-} editor_t;
+typedef struct editor_s editor_t;
 
 typedef void (*key_fn_t)(editor_t *editor, char **env);
 
@@ -41,8 +34,16 @@ typedef struct {
     key_fn_t fn;
 } binding_t;
 
-extern binding_t bindings[MAX_BINDINGS];
-extern int b_count;
+typedef struct editor_s {
+    char *buffer;
+    int len;
+    int cap;
+    int cursor;
+    int prompt_len;
+    int prompt_row;
+    binding_t bindings[MAX_BINDINGS];
+    int b_count;
+} editor_t;
 
 // multiline.c
 void init_editor(void);
@@ -50,9 +51,9 @@ void cleanup_editor(void);
 void refresh_display(editor_t *editor, const char *prompt);
 char *read_line(const char *prompt, char **env);
 // binding.c
-void add_bindkey(int key, key_fn_t fn);
-key_fn_t find_bindkey(int key);
-void init_bindings(void);
+void add_bindkey(editor_t *editor, int key, key_fn_t fn);
+key_fn_t find_bindkey(editor_t *editor, int key);
+void init_bindings(editor_t *editor);
 // actions.c
 void move_left(editor_t *editor, char **env);
 void move_right(editor_t *editor, char **env);

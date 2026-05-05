@@ -7,6 +7,23 @@
 
 #include "editor.h"
 
+static editor_t *init_ed_struct(const char *prompt)
+{
+    editor_t *editor = malloc(sizeof(editor_t));
+
+    if (!editor)
+        return NULL;
+    editor->buffer = calloc(256, 1);
+    editor->len = 0;
+    editor->cap = 256,
+    editor->cursor = 0;
+    editor->prompt_len = strlen(prompt);
+    editor->b_count = 0;
+    if (!editor->buffer)
+        return NULL;
+    return editor;
+}
+
 void init_editor(void)
 {
     initscr();
@@ -27,9 +44,9 @@ void refresh_display(editor_t *editor, const char *prompt)
     int abs_cursor_pos;
     int cursor_row;
     int cursor_col;
-    int total_len;
 
     getmaxyx(stdscr, term_rows, term_cols);
+    (void)term_rows;
     move(editor->prompt_row, 0);
     clrtobot();
     printw("%s%s", prompt, editor->buffer);
@@ -44,22 +61,20 @@ char *read_line(const char *prompt, char **env)
 {
     int ch;
     key_fn_t action;
-    editor_t *editor = {.buffer = calloc(256, 1), .len = 0, .cap = 256,
-        .cursor = 0};
+    editor_t *editor = init_ed_struct(prompt);
 
     init_editor();
-    init_bindings();
-    editor->prompt_len = strlen(prompt);
+    init_bindings(editor);
     getyx(stdscr, editor->prompt_row, ch);
     refresh_display(editor, prompt);
     ch = getch();
     while (ch != '\n' && ch != 4) {
-        action = find_bindkey(ch);
+        action = find_bindkey(editor, ch);
         if (action)
             action(editor, env);
-        else if (ch >= 32 && ch <= 126)
+        if (ch >= 32 && ch <= 126)
             insert_char(editor, ch);
-        refresh_display(&editor, prompt);
+        refresh_display(editor, prompt);
         ch = getch();
     }
     cleanup_editor();
