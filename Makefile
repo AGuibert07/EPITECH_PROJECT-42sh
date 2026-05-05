@@ -47,7 +47,8 @@ SRC			=	bonus/print_error/str_tools_functions.c				\
 				src/backticks.c										\
 				src/globbings/globbings.c							\
 				src/inhibitors.c									\
-				src/quote_inhibitor.c
+				src/quote_inhibitor.c								\
+				src/line.c
 
 MAIN_SRC	=	src/main.c # main file
 
