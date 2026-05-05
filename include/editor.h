@@ -59,4 +59,8 @@ void move_right(editor_t *editor, char **env);
 void delete_char(editor_t *editor, char **env);
 void insert_char(editor_t *editor, char c);
 
+void init_editor(void);
+void cleanup_editor(void);
+void refresh_display(editor_t *editor, const char *prompt);
+
 #endif
