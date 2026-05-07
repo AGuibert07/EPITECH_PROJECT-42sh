@@ -24,36 +24,34 @@ static char **execute_other_builtins(char **arg, char **copy_env,
     return NULL;
 }
 
-char **execute_builtin(char **arg, char **copy_env, int *last_return,
-    void **structs)
+char **execute_builtin(char **arg, int *last_return, void *array[])
 {
-    jobs_t **jobs = (jobs_t **)structs[0];
-    history_t **history = (history_t **)structs[1];
+    char **copy_env = (char **)array[0];
+    jobs_t **jobs = (jobs_t **)array[3];
+    history_t **history = (history_t **)array[4];
 
     check_background_jobs(jobs);
     for (size_t i = 0; jobs_builtins[i].name; i++)
         if (!strcmp(jobs_builtins[i].name, arg[0])) {
             *last_return = 0;
-            jobs_builtins[i].ptr(arg, (const char **)(copy_env), jobs,
-                last_return);
+            jobs_builtins[i].ptr(arg, jobs, last_return, array);
             return copy_env;
         }
     if (arg[0][0] == '%') {
-        job_control_synonym(arg, last_return, (const char **)(copy_env), jobs);
+        job_control_synonym(arg, jobs, last_return, array);
         return copy_env;
     }
     return execute_other_builtins(arg, copy_env, last_return, history);
 }
 
-char **exec_all(char *command, char ***array,
-    int *last_return, void **structs)
+char **exec_all(char *command, char **arg,
+    int *last_return, void *array[])
 {
-    jobs_t **jobs = (jobs_t **)structs[0];
-    char **copy_env = array[0];
-    char **arg = array[1];
+    char **copy_env = (char **)array[0];
+    jobs_t **jobs = (jobs_t **)array[3];
     char **result_env = NULL;
 
-    result_env = execute_builtin(arg, copy_env, last_return, structs);
+    result_env = execute_builtin(arg, last_return, array);
     free_array(arg);
     if (result_env)
         return result_env;

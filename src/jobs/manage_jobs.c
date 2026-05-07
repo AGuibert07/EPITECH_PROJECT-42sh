@@ -29,9 +29,12 @@ static void continue_process_parent(jobs_t *jobs, int *last_return,
     }
 }
 
-static void continue_process(jobs_t *jobs, int *last_return, const char **env,
-    char **args)
+static void continue_process(jobs_t *jobs, int *last_return, char **args,
+    void *array[])
 {
+    char **env = (char **)array[0];
+    alias_t **alias_list = (alias_t **)array[1];
+    jobs_t **jobs_struct = (jobs_t **)array[3];
     pid_t fork_pid = fork();
 
     if (fork_pid == 0) {
@@ -40,26 +43,34 @@ static void continue_process(jobs_t *jobs, int *last_return, const char **env,
         signal(SIGINT, SIG_DFL);
         printf("%s\n", jobs->name);
         kill(jobs->pid, SIGCONT);
-        free_array((char **)(env));
-        free_array(args);
+        free_jobs_struct(*jobs_struct);
+        free_history_struct((history_t **)array[4]);
+        free_alias_list(*alias_list);
+        nfree_array(3, env, (char **)array[2], args);
         exit(0);
     } else {
-        continue_process_parent(jobs, last_return, env);
+        continue_process_parent(jobs, last_return, (const char **)(env));
         waitpid(fork_pid, NULL, 0);
     }
 }
 
-static void continue_process_bg(jobs_t *jobs, const char **env)
+static void continue_process_bg(jobs_t *jobs, void *array[], char **args)
 {
+    char **env = (char **)array[0];
+    alias_t **alias_list = (alias_t **)array[1];
+    char **commands_array = (char **)array[2];
+    jobs_t **jobs_struct = (jobs_t **)array[3];
     pid_t pid = fork();
 
-    (void)env;
     if (pid == 0) {
         signal(SIGTTIN, SIG_DFL);
         signal(SIGTTOU, SIG_DFL);
         printf("[%zu]\t%s &\n", jobs->pos, jobs->name);
         kill(jobs->pid, SIGCONT);
-        free_array((char **)(env));
+        nfree_array(3, env, commands_array, args);
+        free_jobs_struct(*jobs_struct);
+        free_alias_list(*alias_list);
+        free_history_struct((history_t **)array[4]);
         exit(0);
     } else {
         jobs->state = RUNNING;
@@ -91,7 +102,7 @@ static jobs_t *check_args_jobs(char **args, jobs_t **jobs, size_t *pos,
         return get_jobs(args[i], *jobs, args, pos);
 }
 
-void bg_command(char **args, const char **env, jobs_t **jobs, int *last_return)
+void bg_command(char **args, jobs_t **jobs, int *last_return, void *array[])
 {
     jobs_t *tmp = NULL;
     size_t pos = 0;
@@ -106,7 +117,7 @@ void bg_command(char **args, const char **env, jobs_t **jobs, int *last_return)
             *last_return = 1;
             return;
         }
-        continue_process_bg(tmp, env);
+        continue_process_bg(tmp, array, args);
         if (tmp->state == DONE)
             remove_element(jobs, pos);
         if (!args[start])
@@ -115,7 +126,7 @@ void bg_command(char **args, const char **env, jobs_t **jobs, int *last_return)
     } while (args[start]);
 }
 
-void fg_command(char **args, const char **env, jobs_t **jobs, int *last_return)
+void fg_command(char **args, jobs_t **jobs, int *last_return, void *array[])
 {
     jobs_t *tmp = NULL;
     size_t pos = 0;
@@ -130,7 +141,7 @@ void fg_command(char **args, const char **env, jobs_t **jobs, int *last_return)
             *last_return = 1;
             return;
         }
-        continue_process(tmp, last_return, env, args);
+        continue_process(tmp, last_return, args, array);
         if (tmp->state == DONE)
             remove_element(jobs, pos);
         if (!args[start])
@@ -139,16 +150,18 @@ void fg_command(char **args, const char **env, jobs_t **jobs, int *last_return)
     } while (args[start]);
 }
 
-void job_control_synonym(char **args, int *last_return, const char **env,
-    jobs_t **jobs)
+void job_control_synonym(char **args, jobs_t **jobs, int *last_return,
+    void *array[])
 {
+    char **env = (char **)array[0];
+
     *last_return = 0;
     if (args[1] == NULL)
-        return fg_command(args, env, jobs, last_return);
+        return fg_command(args, jobs, last_return, array);
     else if (!strcmp(args[1], "&"))
-        return bg_command(args, env, jobs, last_return);
+        return bg_command(args, jobs, last_return, array);
     else {
-        print_error(args[0], TOO_M_ARGS, env);
+        print_error(args[0], TOO_M_ARGS, (const char **)(env));
         *last_return = 1;
     }
 }

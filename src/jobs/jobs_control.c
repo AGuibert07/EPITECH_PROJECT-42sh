@@ -81,16 +81,17 @@ void check_background_jobs(jobs_t **jobs)
     }
 }
 
-void jobs_command(char **args, const char **env, jobs_t **jobs_ptr,
-    int *last_return)
+void jobs_command(char **args, jobs_t **jobs_ptr, int *last_return,
+    void *array[])
 {
     jobs_t *jobs = *jobs_ptr;
     size_t len = my_word_array_len((const char **)(args));
     bool show_pid = false;
+    char **env = (char **)array[0];
 
     if (len >= 4) {
         *last_return = 1;
-        return print_error("jobs", TOO_M_ARGS, env);
+        return print_error("jobs", TOO_M_ARGS, (const char **)(env));
     }
     if (len > 1)
         show_pid = true;

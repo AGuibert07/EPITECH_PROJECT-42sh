@@ -59,11 +59,13 @@ void print_exit(void)
         printf("exit\n");
 }
 
-static void clean_exit(jobs_t *jobs, char *line, alias_t *alias_list)
+static void clean_exit(jobs_t *jobs, char *line, alias_t *alias_list,
+    history_t **history)
 {
     print_exit();
     free_alias_list(alias_list);
     free_jobs_struct(jobs);
+    free_history_struct(history);
     free(line);
 }
 
@@ -88,7 +90,7 @@ static void read_input(char ***copy_env, int *last_return)
             *copy_env, last_return, &jobs);
         line = NULL;
     }
-    clean_exit(jobs, line, alias_list);
+    clean_exit(jobs, line, alias_list, history);
 }
 
 int main(int argc, char **argv, char **env)

@@ -213,21 +213,33 @@ static char **handle_alias_logic(char **arg, void *array[], int *last_return)
     return NULL;
 }
 
-static char **exec_exit_builtin(void **array, char ***tmp, int *last_return,
-    void **structs)
+static char **exec_exit_builtin(char **arg, int *last_return, void *array[])
 {
-    char **copy_env = tmp[0];
-    char **arg = tmp[1];
+    char **copy_env = (char **)array[0];
+    alias_t **alias_list = (alias_t **)array[1];
+    char **commands_array = (char **)array[2];
+    jobs_t **jobs = (jobs_t **)array[3];
+    jobs_t *tmp = *jobs;
+    size_t last = jobs_struct_len(tmp);
 
     free_array(arg);
-    exit_program((char **)array[2], copy_env, *last_return, structs);
+    if (tmp && tmp[0].state != NULL_STATE && tmp[last].state != EXITED) {
+        tmp[last].state = EXITED;
+        fprintf(stderr, "There are suspended jobs.\n");
+        return copy_env;
+    }
+    free_history_struct((history_t **)array[4]);
+    free_jobs_struct(*jobs);
+    free_alias_list(*alias_list);
+    nfree_array(2, commands_array, copy_env);
+    print_exit();
+    exit(*last_return);
     return copy_env;
 }
 
 static char **check_builtins(char *command, void *array[],
     int *last_return, jobs_t **jobs)
 {
-    history_t **history = (history_t **)array[4];
     char **arg = transform_to_string_array((const char *)(command), " \t");
     char **copy_env = (char **)array[0];
     char **res = NULL;
@@ -240,19 +252,21 @@ static char **check_builtins(char *command, void *array[],
     res = handle_alias_logic(arg, array, last_return);
     if (res)
         return res;
-    if (strcmp((const char *)(arg[0]), "exit") == 0)
-        return exec_exit_builtin(array, (char **[]){copy_env, arg}, last_return,
-            (void *[]){jobs, history});
+    if (strcmp((const char *)(arg[0]), EXIT_CMD) == 0)
+        return exec_exit_builtin(arg, last_return, array);
     update_job_state(jobs);
-    return exec_all(command, (char **[]) {copy_env, arg}, last_return,
-        (void *[]){jobs, history});
+    return exec_all(command, arg, last_return, array);
 }
 
+// copy_env
+// &alias_list
+// commands_array
+// jobs
+// history
 char **parse_command(char *command, void *array[],
     int *last_return, jobs_t **jobs)
 {
     char **copy_env = (char **)array[0];
-    alias_t **alias_list = (alias_t **)array[1];
     char **commands_array = (char **)array[2];
     history_t **history = (history_t **)array[4];
 
@@ -266,8 +280,7 @@ char **parse_command(char *command, void *array[],
             *last_return = 1;
             return copy_env;
         }
-        handle_pipe(command, copy_env, last_return,
-            (void *[]){alias_list, history});
+        handle_pipe(command, last_return, array);
         return copy_env;
     }
     return check_builtins(command, array, last_return, jobs);
