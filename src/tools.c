@@ -70,5 +70,6 @@ char **split_semicolon(char *line)
     commands[index] = my_substring(line, start_pos, strlen(line) - start_pos);
     index++;
     commands[index] = NULL;
+    commands = manage_quotes(commands, ";");
     return commands;
 }
