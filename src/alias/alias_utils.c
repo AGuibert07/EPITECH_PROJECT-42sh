@@ -14,7 +14,7 @@ char *get_alias(alias_t *list, char *name)
 {
     if (!name)
         return NULL;
-    for (alias_t *tmp = list; tmp != NULL; tmp = tmp->next_alias) {
+    for (alias_t *tmp = list; tmp && tmp->name; tmp = tmp->next_alias) {
         if (strcmp(tmp->name, name) == 0)
             return tmp->command;
     }

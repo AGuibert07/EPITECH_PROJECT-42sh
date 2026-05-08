@@ -125,6 +125,10 @@ void remove_backslash(const char **new_arg, char **tmp, char quote);
 // split.c
 char **handle_ops(char *command, void *array[],
     int *last_return, jobs_t **jobs);
+// special_variables.c
+char **run_precmd(void *array[], int *last_return, alias_t **list);
+char **run_preexec(void *array[], int *last_return, jobs_t **jobs,
+    alias_t **list);
 
 static const builtins_t builtins_functions[] = {
     {"cd", execute_cd},

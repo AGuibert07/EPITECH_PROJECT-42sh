@@ -32,20 +32,21 @@ SRC			=	$(addprefix bonus/,		\
 						my_str_concat.c					\
 						file_tool_functions.c			\
 						get_env_dir.c))					\
-				$(addprefix src/,		\
-					free_tools.c		\
-					exec.c				\
-					tools.c				\
-					parsing.c			\
-					pipe.c				\
-					redirections.c		\
-					subshell.c			\
-					backticks.c			\
-					globbings.c			\
-					inhibitors.c		\
-					quote_inhibitor.c	\
-					all_executions.c	\
-					split.c				\
+				$(addprefix src/,			\
+					free_tools.c			\
+					exec.c					\
+					tools.c					\
+					parsing.c				\
+					pipe.c					\
+					redirections.c			\
+					subshell.c				\
+					backticks.c				\
+					globbings.c				\
+					inhibitors.c			\
+					quote_inhibitor.c		\
+					all_executions.c		\
+					split.c					\
+					special_variables.c		\
 					$(addprefix builtins/,		\
 						builtins.c				\
 						cd.c					\

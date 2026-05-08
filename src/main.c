@@ -48,7 +48,7 @@ char **process_line(void *data[], char **copy_env, int *last_return,
     if (!commands)
         return copy_env;
     for (int i = 0; commands[i] != NULL; i++)
-        copy_env = parse_command(commands[i], (void *[]) {copy_env, data[1],
+        copy_env = parse_command(commands[i], (void *[]){copy_env, data[1],
                 commands, jobs, history}, last_return, jobs);
     free_array(commands);
     return copy_env;
@@ -83,8 +83,10 @@ static void read_input(char ***copy_env, int *last_return)
         exit(84);
     }
     for (size_t current = 0; 1;) {
+        *copy_env = run_precmd((void *[]){*copy_env, last_return, &jobs,
+                history}, last_return, &alias_list);
         display_custom_prompt(*copy_env);
-        if (getline(&line, &line_length, stdin) == -1)
+        if (getline(&line, &line_length, stdin) < 0)
             break;
         history = add_command_to_history(history, line, &current);
         *copy_env = process_line((void *[]){line, &alias_list, history},
