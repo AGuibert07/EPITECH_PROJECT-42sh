@@ -113,8 +113,8 @@ char *build_alias_command(const char *alias_val, const char **old_arg)
     }
     size_alias = my_word_array_len(alias);
     arr = calloc(size_alias + size_old + 1, sizeof(char *));
-    if (arr && cpy_string_arr(old_arg, arr, false, old_arg) &&
-        cpy_string_arr(&(alias[1]), &(arr[size_old]), true, old_arg))
+    if (arr && cpy_string_arr(alias, arr, false, old_arg) &&
+        cpy_string_arr(&(old_arg[1]), &(arr[size_alias]), true, alias))
         str = my_str_join(" ", (const char **)(arr));
     nfree_array(2, arr, alias);
     return str;
@@ -144,8 +144,8 @@ static bool must_alias_be_applied(char **args, const char *alias)
         return false;
     if (!splited)
         return false;
-    if (strcmp(args[0], (const char *)(splited[0])) != 0)
-        return false;
+    if (!splited[1])
+        return true;
     for (size_t i = 1; splited[i] != NULL; ++i)
         if (!my_is_in_str_array((const char *)(splited[i]),
                 (const char **)(args))) {
@@ -160,11 +160,12 @@ char **check_alias_expansion(char **arg, void *array[], int *last_return)
 {
     alias_t **list = (alias_t **)array[1];
     char *val = get_alias(*list, arg[0]);
-    int name_len = strlen(arg[0]);;
 
     if (!val || strcmp(arg[0], "alias") == 0)
         return NULL;
+    return handle_alias(val, arg, array, last_return);
     if (must_alias_be_applied(arg, (const char *)(val)))
         return handle_alias(val, arg, array, last_return);
+    printf("Not applied\n");
     return NULL;
 }
