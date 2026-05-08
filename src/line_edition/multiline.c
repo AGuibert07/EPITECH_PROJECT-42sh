@@ -15,7 +15,7 @@ static editor_t *init_ed_struct(const char *prompt)
         return NULL;
     editor->buffer = calloc(256, 1);
     editor->len = 0;
-    editor->cap = 256,
+    editor->cap = 256;
     editor->cursor = 0;
     editor->prompt_len = strlen(prompt);
     editor->b_count = 0;
@@ -39,13 +39,12 @@ void cleanup_editor(void)
 
 void refresh_display(editor_t *editor, const char *prompt)
 {
-    int term_rows;
-    int term_cols;
-    int abs_cursor_pos;
-    int cursor_row;
-    int cursor_col;
+    int term_rows = getmaxy(stdscr);
+    int term_cols = getmaxx(stdscr);
+    int abs_cursor_pos = 0;
+    int cursor_row = 0;
+    int cursor_col = 0;
 
-    getmaxyx(stdscr, term_rows, term_cols);
     (void)term_rows;
     move(editor->prompt_row, 0);
     clrtobot();
@@ -65,7 +64,7 @@ char *read_line(const char *prompt, char **env)
 
     init_editor();
     init_bindings(editor);
-    getyx(stdscr, editor->prompt_row, ch);
+    editor->prompt_row = getcury(stdscr);
     refresh_display(editor, prompt);
     ch = getch();
     while (ch != '\n' && ch != 4) {
