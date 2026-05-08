@@ -237,7 +237,7 @@ static char **exec_exit_builtin(char **arg, int *last_return, void *array[])
     return copy_env;
 }
 
-static char **check_builtins(char *command, void *array[],
+char **check_builtins(char *command, void *array[],
     int *last_return, jobs_t **jobs)
 {
     char **arg = transform_to_string_array((const char *)(command), " \t");
@@ -258,6 +258,24 @@ static char **check_builtins(char *command, void *array[],
     return exec_all(command, arg, last_return, array);
 }
 
+static int has_logic_ops(const char *cmd)
+{
+    int single_quote = 0;
+    int double_quote = 0;
+    int depth = 0;
+
+    for (int i = 0; cmd[i] != '\0'; i++) {
+        measure_depth(cmd[i], &depth, &single_quote, &double_quote);
+        if (single_quote || double_quote || depth)
+            continue;
+        if (cmd[i] == '&' && cmd[i + 1] == '&')
+            return 1;
+        if (cmd[i] == '|' && cmd[i + 1] == '|')
+            return 1;
+    }
+    return 0;
+}
+
 // copy_env
 // &alias_list
 // commands_array
@@ -267,13 +285,13 @@ char **parse_command(char *command, void *array[],
     int *last_return, jobs_t **jobs)
 {
     char **copy_env = (char **)array[0];
-    char **commands_array = (char **)array[2];
     history_t **history = (history_t **)array[4];
 
-    (void)commands_array;
     if (check_subshell(command, copy_env, last_return,
             (void *[]){jobs, history}))
         return copy_env;
+    if (has_logic_ops(command))
+        return handle_ops(command, array, last_return, jobs);
     if (strchr((const char *)(command), '|') != NULL) {
         if (pipe_syntax_error(command) == -1) {
             print_error(NULL, NULL_CMD, (const char **)(copy_env));

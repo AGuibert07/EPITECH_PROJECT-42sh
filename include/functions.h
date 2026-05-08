@@ -41,6 +41,17 @@ typedef struct builtins_s {
     char **(*ptr)(char **, char **, int *);
 } builtins_t;
 
+typedef enum {
+    AND,
+    OR,
+    NONE
+} op_type_t;
+
+typedef struct {
+    char *command;
+    op_type_t next_op;
+} flow_t;
+
 // builtins.c
 char **print_env(char **arg, char **env, int *last_return);
 char **execute_setenv(char **arg, char **copy_env, int *last_return);
@@ -60,6 +71,11 @@ int is_name_valid(char *name, const char **env);
 char **add_to_env(char **copy_env, char *new_var);
 void detele_env_var(char **copy_env, int index);
 // parsing.c
+void my_replace_in_str(char *str, char c_init, char c_new);
+char **transform_to_string_array(const char *str, const char *separator);
+void rm_backslash(char *str);
+char **check_builtins(char *command, void *array[],
+    int *last_return, jobs_t **jobs);
 char **parse_command(char *command, void *array[],
     int *last_return, jobs_t **jobs);
 // all_execution.c
@@ -67,8 +83,6 @@ char **exec_all(char *command, char **arg,
     int *last_return, void *array[]);
 char **execute_builtin(char **arg, int *last_return, void *array[]);
 // main.c
-char **transform_to_string_array(const char *str, const char *separator);
-void my_replace_in_str(char *str, char c_init, char c_new);
 void free_array(char **arg);
 void print_exit(void);
 char **process_line(void *data[], char **copy_env, int *last_return,
@@ -84,6 +98,8 @@ void display_custom_prompt(char **copy_env);
 char *cut_ending_char(char *buffer, char c);
 bool str_isnum(const char *str, int *val);
 char **split_semicolon(char *line);
+void measure_depth(char c, int *depth, int *single_quote,
+    int *double_quote);
 // subshell.c
 void update_depth(char character, int *depth);
 int check_subshell(char *command, char **copy_env,
@@ -106,6 +122,9 @@ bool char_cmp_quote(bool containing_quote, char character, char quote);
 char **create_part(char **tmp, const char **new_arg, size_t **indexes,
     const char **utils);
 void remove_backslash(const char **new_arg, char **tmp, char quote);
+// split.c
+char **handle_ops(char *command, void *array[],
+    int *last_return, jobs_t **jobs);
 
 static const builtins_t builtins_functions[] = {
     {"cd", execute_cd},

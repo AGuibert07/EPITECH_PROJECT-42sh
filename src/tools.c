@@ -73,3 +73,22 @@ char **split_semicolon(char *line)
     commands = manage_quotes(commands, ";");
     return commands;
 }
+
+void measure_depth(char c, int *depth, int *single_quote,
+    int *double_quote)
+{
+    if (c == '\'' && !(*double_quote)) {
+        *single_quote = !(*single_quote);
+        return;
+    }
+    if (c == '\"' && !(*single_quote)) {
+        *double_quote = !(*double_quote);
+        return;
+    }
+    if (*single_quote || *double_quote)
+        return;
+    if (c == '(')
+        (*depth)++;
+    if (*depth > 0 && c == ')')
+        (*depth)--;
+}

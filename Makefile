@@ -55,8 +55,9 @@ SRC			=	bonus/print_error/str_tools_functions.c				\
 				src/line_edition/binding.c							\
 				src/line_edition/actions.c							\
 				src/history/history.c								\
-				src/history/history_management.c						\
-				src/all_executions.c
+				src/history/history_management.c					\
+				src/all_executions.c								\
+				src/split.c
 
 MAIN_SRC	=	src/main.c # main file
 
