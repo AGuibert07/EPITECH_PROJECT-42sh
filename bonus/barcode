@@ -228,7 +228,7 @@ def print_help(output=stdout) -> None :
     print("    type    the barcode type ('QR Code Portable / Smartphone'" + \
         " by default)", file=output)
     print("    Create the barcode with the given data and save it into the " + \
-        "file.", file=output)
+        f"file. The default type used is {DEFAULT_TYPE}.", file=output)
     print("")
     print("run 'barcode -l' to see the barcode types list")
 
@@ -268,7 +268,6 @@ if __name__ == "__main__" :
     type = DEFAULT_TYPE
     if argv[INDEX_T_FLAG] == T_FLAG :
         type = argv[INDEX_T_VAL]
-        # argv = argv[INDEX_T_VAL + 1:]
         if len(argv) < MAX_ARG_NBR :
             print("barcode: Missing arguments after the '-t' option.\n", \
                 file=stderr)
@@ -280,10 +279,5 @@ if __name__ == "__main__" :
             print("barcode: Too many arguments.\n", file=stderr)
             print_help(output=stderr)
             exit(EPITECH_FAILURE)
-    # if len(argv) < MIN_ARG_NBR :
-    #     print("barcode: Missing arguments after the '-t' option.\n", \
-    #         file=stderr)
-    #     print_help(output=stderr)
-    #     exit(EPITECH_FAILURE)
     file, data = argv[0], argv[1]
     exit(create_barcode(data, type, file))
