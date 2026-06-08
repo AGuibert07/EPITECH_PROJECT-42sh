@@ -10,3 +10,7 @@ The **42sh** is the outcome of the 'Shell Programming' module consisting to add 
 
 ### Code Breakers
 Project selectionned for the **Code Breakers 2026** => one of the 4 best 42sh of our promo.
+
+### Technologies
+- C (main part of the project)
+- Python (only for the barcode maker bonus)
